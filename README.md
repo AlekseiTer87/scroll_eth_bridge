@@ -58,7 +58,7 @@
 Для деплоя всех необходимых контрактов выполните:
 
 ```bash
-npm run deploy
+npx hardhat run scripts/deploy.js --network l1_scrollsdk
 ```
 
 Этот скрипт выполнит следующие действия:
