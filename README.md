@@ -36,6 +36,11 @@
 
 4. Также в файл hardhat.config.js нужно вписать ваш приватный ключ
 
+5. Скомпилируйте все файлы
+   ```bash
+   npx hardhat compile
+   ```
+   
 ## Конфигурация
 
 Проект использует Hardhat для деплоя контрактов и выполнения скриптов. Конфигурация находится в `hardhat.config.js`.
@@ -67,7 +72,7 @@ npm run deploy
 ### Перевод токенов с L1 на L2
 
 ```bash
-npm run bridge-l1-to-l2
+npx hardhat run scripts/bridgeL1ToL2.js --network l1_scrollsdk
 ```
 
 Этот скрипт:
@@ -79,7 +84,7 @@ npm run bridge-l1-to-l2
 ### Перевод токенов с L2 на L1
 
 ```bash
-npm run bridge-l2-to-l1
+npx hardhat run scripts/bridgeL2ToL1.js --network l2_scrollsdk
 ```
 
 Этот скрипт:
