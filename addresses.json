@@ -1,0 +1,10 @@
+{
+  "l1": {
+    "token": "0x0ca855C4D2A978373F201e5c24723297743a29E9",
+    "bridge": "0x45869fF7872b3671f38b1298bAD2FBd7B36837E0"
+  },
+  "l2": {
+    "token": "0x74Ca12b4270B3Bb4e7c008AACbCE742662e85a1e",
+    "bridge": "0x80C55Aa2F4e75642a86fc6c80A655C20683DB872"
+  }
+}
