@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll Bridge</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Scroll Bridge</h1>
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-deposit">Deposit to Scroll</button>
+      <button class="tab-btn" id="tab-withdraw">Withdraw to Ethereum</button>
+    </div>
+    <div class="bridge-blocks">
+      <section class="bridge-section deposit" id="deposit-section">
+        <div class="balance-row">Available: <span id="l1-balance">-</span> <button id="max-deposit-btn">Max</button></div>
+        <form id="deposit-form">
+          <label>Amount
+            <input type="number" min="0" step="any" id="deposit-amount" placeholder="0.0" required />
+          </label>
+          <div class="summary">
+            <div>Amount: <span id="deposit-summary-amount">-</span></div>
+            <div>Ethereum Fee: <span id="deposit-eth-fee">-</span></div>
+            <div>Scroll Fee: <span id="deposit-scroll-fee">-</span></div>
+            <div>Total: <span id="deposit-summary-total">-</span></div>
+          </div>
+          <button type="submit">Deposit</button>
+        </form>
+      </section>
+      <section class="bridge-section withdraw" id="withdraw-section" style="display:none;">
+        <div class="balance-row">Available: <span id="l2-balance">-</span> <button id="max-btn">Max</button></div>
+        <form id="withdraw-form">
+          <label>Amount
+            <input type="number" min="0" step="any" id="withdraw-amount" placeholder="0.0" required />
+          </label>
+          <div class="summary">
+            <div>Amount: <span id="summary-amount">-</span></div>
+            <div>Ethereum Fee: <span id="eth-fee">-</span></div>
+            <div>Scroll Fee: <span id="scroll-fee">-</span></div>
+            <div>Total: <span id="summary-total">-</span></div>
+          </div>
+          <button type="submit">Withdraw</button>
+        </form>
+      </section>
+    </div>
+    <button id="connect-btn">Connect Wallet</button>
+    <footer>
+      <a href="#">Testnet Bridge</a> | <a href="#">Terms of Service</a>
+    </footer>
+  </div>
+</body>
+</html> 
