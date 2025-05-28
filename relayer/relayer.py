@@ -170,7 +170,7 @@ def relay_withdrawal(tx_hash):
 
 def process_pending():
     # Копируем pending в отдельный список, чтобы не было проблем с изменением множества во время итерации
-    for tx_hash in list(pending):GDJK4EW45TW1ZPBX1AJHAJQQTXTN3GWCFB"
+    for tx_hash in list(pending):
         print(f"Проверка pending tx: {tx_hash}")
         if relay_withdrawal(tx_hash):
             print(f"Финализировано и удалено из pending: {tx_hash}")
@@ -205,4 +205,4 @@ def main_loop():
         time.sleep(30)
 
 if __name__ == "__main__":
-    main_loop() 10230052
+    main_loop()
