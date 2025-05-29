@@ -10,9 +10,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 L1_RPC_URL = os.getenv("L1_RPC_URL", "https://ethereum-sepolia-rpc.publicnode.com")
-L2_RPC_URL = os.getenv("L2_RPC_URL", "https://scroll-sepolia-rpc.publicnode.com")
+L2_RPC_URL = os.getenv("L2_RPC_URL", "https://sepolia-rpc.scroll.io/")
 BRIDGE_HISTORY_API = os.getenv("BRIDGE_HISTORY_API", "https://sepolia-api-bridge-v2.scroll.io")
-PRIVATE_KEY = os.getenv("RELAYER_PRIVATE_KEY", "0xYour_Relayer_Private_Key")
+PRIVATE_KEY = os.getenv("RELAYER_PRIVATE_KEY", "0x431a5cdff0fc6eaec361ba120238bd1c1f2dbe43ada325c2bef0c0534d9ee917")
 PROCESSED_FILE = os.path.join(os.path.dirname(__file__), "processed.txt")
 PENDING_FILE = os.path.join(os.path.dirname(__file__), "pending.txt")
 ADDRESSES_FILE = os.path.join(os.path.dirname(__file__), "..", "addresses.json")
@@ -201,6 +201,16 @@ def main_loop():
                     save_pending(l2_tx_hash)
         except Exception as e:
             print(f"Ошибка в основном цикле: {e}")
+            # Если фильтр устарел или не найден — пересоздать его
+            if "filter not found" in str(e):
+                print("Пересоздаю фильтр событий WithdrawERC20...")
+                try:
+                    if w3_l2.provider.__class__.__name__ == "WebsocketProvider":
+                        event_filter = l2_bridge.events.WithdrawERC20.create_filter(from_block='latest')
+                    else:
+                        event_filter = l2_bridge.events.WithdrawERC20.create_filter(from_block=w3_l2.eth.block_number)
+                except Exception as e2:
+                    print(f"Ошибка при пересоздании фильтра: {e2}")
             time.sleep(10)
         time.sleep(30)
 
