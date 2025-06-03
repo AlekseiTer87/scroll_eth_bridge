@@ -12,7 +12,7 @@ load_dotenv()
 L1_RPC_URL = os.getenv("L1_RPC_URL", "https://ethereum-sepolia-rpc.publicnode.com")
 L2_RPC_URL = os.getenv("L2_RPC_URL", "https://sepolia-rpc.scroll.io/")
 BRIDGE_HISTORY_API = os.getenv("BRIDGE_HISTORY_API", "https://sepolia-api-bridge-v2.scroll.io")
-PRIVATE_KEY = os.getenv("RELAYER_PRIVATE_KEY", "0x431a5cdff0fc6eaec361ba120238bd1c1f2dbe43ada325c2bef0c0534d9ee917")
+PRIVATE_KEY = os.getenv("RELAYER_PRIVATE_KEY", "0x")
 
 # Пути к файлам состояния
 PROCESSED_FILE = os.path.join(os.path.dirname(__file__), "processed.txt")
