@@ -1,5 +1,4 @@
-web3
-web3[websocket]
-requests
-eth-account
-dotenv
+web3==6.11.1
+python-dotenv==1.0.0
+requests==2.31.0
+setuptools

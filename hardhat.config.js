@@ -5,13 +5,13 @@ module.exports = {
   networks: {
     l1_scrollsdk: {
       url: "https://ethereum-sepolia-rpc.publicnode.com",
-      accounts: ["0x_your_Private_Key"],
+      accounts: ["0x8c88b2cb3fca950a61b51c31c2d538f218a9aada0e187e324507d65b009a5f22"],
       chainId: 11155111,
       timeout: 300000
     },
     l2_scrollsdk: {
-      url: "https://scroll-sepolia-rpc.publicnode.com",
-      accounts: ["0x_your_Private_Key"],
+      url: "https://sepolia-rpc.scroll.io",
+      accounts: ["0x8c88b2cb3fca950a61b51c31c2d538f218a9aada0e187e324507d65b009a5f22"],
       chainId: 534351,
       timeout: 300000
     }
@@ -42,8 +42,8 @@ module.exports = {
   ],
   etherscan: {
     apiKey: {
-      scrollSepolia: "Your_API_Key_scrollSepoliaScan",
-      sepolia: "Your_API_Key_sepoliaScan"
+      scrollSepolia: "JVKE13ZPNHB6M5YBDGD3INHSFZGV58ZNEX",
+      sepolia: "GDJK4EW45TW1ZPBX1AJHAJQQTXTN3GWCFB"
     },
     customChains: [
       {

@@ -1,0 +1,64 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "messenger",
+      "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "fixedFee",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "percentFeeBps",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "gasMarkupBps",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "uint256", "name": "_gasLimit", "type": "uint256"},
+        {"internalType": "uint256", "name": "_gasPrice", "type": "uint256"}
+      ],
+      "name": "bridgeETH",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {"indexed": true, "internalType": "address", "name": "from", "type": "address"},
+        {"indexed": true, "internalType": "address", "name": "to", "type": "address"},
+        {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"},
+        {"indexed": false, "internalType": "bytes", "name": "data", "type": "bytes"}
+      ],
+      "name": "ETHReceived",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {"indexed": true, "internalType": "address", "name": "from", "type": "address"},
+        {"indexed": true, "internalType": "address", "name": "to", "type": "address"},
+        {"indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256"},
+        {"indexed": false, "internalType": "bytes", "name": "data", "type": "bytes"}
+      ],
+      "name": "ETHWithdrawn",
+      "type": "event"
+    }
+  ]
+} 

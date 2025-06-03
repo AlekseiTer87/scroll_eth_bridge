@@ -13,11 +13,87 @@ L1_RPC_URL = os.getenv("L1_RPC_URL", "https://ethereum-sepolia-rpc.publicnode.co
 L2_RPC_URL = os.getenv("L2_RPC_URL", "https://sepolia-rpc.scroll.io/")
 BRIDGE_HISTORY_API = os.getenv("BRIDGE_HISTORY_API", "https://sepolia-api-bridge-v2.scroll.io")
 PRIVATE_KEY = os.getenv("RELAYER_PRIVATE_KEY", "0x431a5cdff0fc6eaec361ba120238bd1c1f2dbe43ada325c2bef0c0534d9ee917")
-PROCESSED_FILE = os.path.join(os.path.dirname(__file__), "processed.txt")
-PENDING_FILE = os.path.join(os.path.dirname(__file__), "pending.txt")
-ADDRESSES_FILE = os.path.join(os.path.dirname(__file__), "..", "addresses.json")
 
-# ABI события WithdrawERC20
+# Пути к файлам состояния
+PROCESSED_FILE = os.path.join(os.path.dirname(__file__), "processed.txt")
+PENDING_ETH_FILE = os.path.join(os.path.dirname(__file__), "pending_eth.txt")
+PENDING_TOKEN_FILE = os.path.join(os.path.dirname(__file__), "pending_token.txt")
+
+# Загрузка адресов
+with open(os.path.join(os.path.dirname(__file__), "..", "bridge_deployment", "addresses.json")) as f:
+    addresses = json.load(f)
+
+L1_TOKEN_BRIDGE_ADDRESS = Web3.to_checksum_address(addresses["token"]["l1"]["bridge"])
+L2_TOKEN_BRIDGE_ADDRESS = Web3.to_checksum_address(addresses["token"]["l2"]["bridge"])
+L1_ETH_BRIDGE_ADDRESS = Web3.to_checksum_address(addresses["eth"]["l1"]["bridge"])
+L2_ETH_BRIDGE_ADDRESS = Web3.to_checksum_address(addresses["eth"]["l2"]["bridge"])
+
+# Web3 подключение
+w3_l1 = Web3(Web3.HTTPProvider(L1_RPC_URL))
+w3_l2 = Web3(Web3.HTTPProvider(L2_RPC_URL))
+account = Account.from_key(PRIVATE_KEY)
+
+# Загрузка состояния
+def load_state():
+    processed = set()
+    pending_eth = set()
+    pending_token = set()
+    
+    if os.path.exists(PROCESSED_FILE):
+        with open(PROCESSED_FILE, 'r') as f:
+            processed = set(line.strip() for line in f if line.strip())
+    
+    if os.path.exists(PENDING_ETH_FILE):
+        with open(PENDING_ETH_FILE, 'r') as f:
+            pending_eth = set(line.strip() for line in f if line.strip())
+            
+    if os.path.exists(PENDING_TOKEN_FILE):
+        with open(PENDING_TOKEN_FILE, 'r') as f:
+            pending_token = set(line.strip() for line in f if line.strip())
+    
+    return processed, pending_eth, pending_token
+
+def save_processed(tx_hash):
+    if not tx_hash.startswith("0x"):
+        tx_hash = "0x" + tx_hash
+    with open(PROCESSED_FILE, "a") as f:
+        f.write(tx_hash + "\n")
+    processed.add(tx_hash)
+    # Удаляем из обоих pending файлов
+    remove_pending_eth(tx_hash)
+    remove_pending_token(tx_hash)
+
+def save_pending_eth(tx_hash):
+    if not tx_hash.startswith("0x"):
+        tx_hash = "0x" + tx_hash
+    if tx_hash not in pending_eth:
+        with open(PENDING_ETH_FILE, "a") as f:
+            f.write(tx_hash + "\n")
+        pending_eth.add(tx_hash)
+
+def save_pending_token(tx_hash):
+    if not tx_hash.startswith("0x"):
+        tx_hash = "0x" + tx_hash
+    if tx_hash not in pending_token:
+        with open(PENDING_TOKEN_FILE, "a") as f:
+            f.write(tx_hash + "\n")
+        pending_token.add(tx_hash)
+
+def remove_pending_eth(tx_hash):
+    if tx_hash in pending_eth:
+        pending_eth.discard(tx_hash)
+        with open(PENDING_ETH_FILE, "w") as f:
+            for h in pending_eth:
+                f.write(h + "\n")
+
+def remove_pending_token(tx_hash):
+    if tx_hash in pending_token:
+        pending_token.discard(tx_hash)
+        with open(PENDING_TOKEN_FILE, "w") as f:
+            for h in pending_token:
+                f.write(h + "\n")
+
+# ABI для событий
 WITHDRAW_EVENT_ABI = {
     "anonymous": False,
     "inputs": [
@@ -32,91 +108,26 @@ WITHDRAW_EVENT_ABI = {
     "type": "event"
 }
 
-# ABI для messenger и bridge (минимальный)
-IL1ScrollMessengerABI = [
-    {
-        "inputs": [
-            {"internalType": "address", "name": "_sender", "type": "address"},
-            {"internalType": "address", "name": "_target", "type": "address"},
-            {"internalType": "uint256", "name": "_value", "type": "uint256"},
-            {"internalType": "uint256", "name": "_messageNonce", "type": "uint256"},
-            {"internalType": "bytes", "name": "_message", "type": "bytes"},
-            {"components": [
-                {"internalType": "uint256", "name": "batchIndex", "type": "uint256"},
-                {"internalType": "bytes", "name": "merkleProof", "type": "bytes"}
-            ], "internalType": "struct IL1ScrollMessenger.L2MessageProof", "name": "_proof", "type": "tuple"}
-        ],
-        "name": "relayMessageWithProof",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {"inputs": [], "name": "xDomainMessageSender", "outputs": [{"internalType": "address", "name": "", "type": "address"}], "stateMutability": "view", "type": "function"}
-]
-L1TokenBridgeABI = [
-    {"inputs": [], "name": "messenger", "outputs": [{"internalType": "address", "name": "", "type": "address"}], "stateMutability": "view", "type": "function"}
-]
-
-# Загрузка адресов
-with open(ADDRESSES_FILE) as f:
-    addresses = json.load(f)
-L1_BRIDGE_ADDRESS = addresses["l1"]["bridge"]
-L2_BRIDGE_ADDRESS = addresses["l2"]["bridge"]
-
-# Web3 и аккаунт
-w3_l1 = Web3(Web3.HTTPProvider(L1_RPC_URL))
-w3_l2 = Web3(Web3.HTTPProvider(L2_RPC_URL))
-account = Account.from_key(PRIVATE_KEY)
-
-# Контракты
-l1_bridge = w3_l1.eth.contract(address=Web3.to_checksum_address(L1_BRIDGE_ADDRESS), abi=L1TokenBridgeABI)
-messenger_address = l1_bridge.functions.messenger().call()
-messenger = w3_l1.eth.contract(address=messenger_address, abi=IL1ScrollMessengerABI)
-l2_bridge = w3_l2.eth.contract(address=Web3.to_checksum_address(L2_BRIDGE_ADDRESS), abi=[WITHDRAW_EVENT_ABI])
-
-# Загрузка обработанных и ожидающих tx_hash
-if os.path.exists(PROCESSED_FILE):
-    with open(PROCESSED_FILE) as f:
-        processed = set(line.strip() for line in f if line.strip())
-else:
-    processed = set()
-if os.path.exists(PENDING_FILE):
-    with open(PENDING_FILE) as f:
-        pending = set(line.strip() for line in f if line.strip())
-else:
-    pending = set()
-
-def save_processed(tx_hash):
-    if not tx_hash.startswith("0x"):
-        tx_hash = "0x" + tx_hash
-    with open(PROCESSED_FILE, "a") as f:
-        f.write(tx_hash + "\n")
-    processed.add(tx_hash)
-
-def save_pending(tx_hash):
-    if not tx_hash.startswith("0x"):
-        tx_hash = "0x" + tx_hash
-    with open(PENDING_FILE, "a") as f:
-        f.write(tx_hash + "\n")
-    pending.add(tx_hash)
-
-def remove_pending(tx_hash):
-    pending.discard(tx_hash)
-    # Перезаписываем файл без этого tx_hash
-    with open(PENDING_FILE, "w") as f:
-        for h in pending:
-            f.write(h + "\n")
+ETH_WITHDRAWN_EVENT_ABI = {
+    "anonymous": False,
+    "inputs": [
+        {"indexed": True, "internalType": "address", "name": "from", "type": "address"},
+        {"indexed": True, "internalType": "address", "name": "to", "type": "address"},
+        {"indexed": False, "internalType": "uint256", "name": "amount", "type": "uint256"},
+        {"indexed": False, "internalType": "bytes", "name": "data", "type": "bytes"}
+    ],
+    "name": "ETHWithdrawn",
+    "type": "event"
+}
 
 def get_proof_for_tx(tx_hash):
-    if not tx_hash.startswith("0x"):
-        tx_hash = "0x" + tx_hash
     url = f"{BRIDGE_HISTORY_API}/api/txsbyhashes"
     try:
         resp = requests.post(url, json={"txs": [tx_hash]})
         resp.raise_for_status()
         data = resp.json()
         if data.get("errcode", 1) != 0:
-            print("Ошибка Bridge History API:", data.get("errmsg"))
+            print(f"Ошибка Bridge History API: {data.get('errmsg')}")
             return None
         items = data["data"]["results"]
         if not items:
@@ -126,27 +137,92 @@ def get_proof_for_tx(tx_hash):
         print(f"Ошибка запроса к Bridge History API для {tx_hash}: {e}")
         return None
 
-def relay_withdrawal(tx_hash):
+def relay_withdrawal(tx_hash, is_eth=False):
     if tx_hash in processed:
-        return
+        print(f"{tx_hash} - Транзакция уже обработана")
+        return True
+
     proof_data = get_proof_for_tx(tx_hash)
-    claim_info = proof_data.get("claim_info") if proof_data else None
-    claimable = claim_info.get("claimable") if claim_info else None
-    if not (claimable is True or claimable == "true"):
+    if not proof_data or not proof_data.get("claim_info"):
+        print(f"{tx_hash} -Нет данных для подтверждения транзакции")
+        if is_eth:
+            save_pending_eth(tx_hash)
+        else:
+            save_pending_token(tx_hash)
         return False
-    claim = claim_info
-    from_addr = claim["from"]
-    value = int(claim["value"])
-    message_nonce = int(claim["nonce"])
-    message = bytes.fromhex(claim["message"][2:]) if claim["message"].startswith("0x") else bytes(claim["message"], "utf-8")
-    proof = claim["proof"]
-    batch_index = int(proof["batch_index"])
-    merkle_proof = bytes.fromhex(proof["merkle_proof"][2:]) if proof["merkle_proof"].startswith("0x") else bytes(proof["merkle_proof"], "utf-8")
-    print(f"Финализируем tx: {tx_hash} -> {from_addr}, value: {value}, nonce: {message_nonce}")
+
+    claim = proof_data["claim_info"]
+    if not claim.get("proof") or not claim["proof"].get("batch_index") or not claim["proof"].get("merkle_proof"):
+        print(f"{tx_hash} - Транзакция пока не готова к подтверждению (нет proof)")
+        if is_eth:
+            save_pending_eth(tx_hash)
+        else:
+            save_pending_token(tx_hash)
+        return False
+
+    if not (claim.get("claimable") is True or claim.get("claimable") == "true"):
+        print(f"{tx_hash} - Транзакция пока не готова к подтверждению")
+        if is_eth:
+            save_pending_eth(tx_hash)
+        else:
+            save_pending_token(tx_hash)
+        return False
+
     try:
-        tx = messenger.functions.relayMessageWithProof(
+        # Подготовка данных для вызова relayMessageWithProof
+        from_addr = claim["from"]
+        value = int(claim["value"])
+        message_nonce = int(claim["nonce"])
+        message = bytes.fromhex(claim["message"][2:]) if claim["message"].startswith("0x") else bytes.fromhex(claim["message"])
+        proof = claim["proof"]
+        batch_index = int(proof["batch_index"])
+        merkle_proof = bytes.fromhex(proof["merkle_proof"][2:]) if proof["merkle_proof"].startswith("0x") else bytes.fromhex(proof["merkle_proof"])
+
+        # Определяем адрес моста и мессенджера
+        bridge_address = L1_ETH_BRIDGE_ADDRESS if is_eth else L1_TOKEN_BRIDGE_ADDRESS
+        
+        # Получаем адрес мессенджера из контракта моста
+        bridge_contract = w3_l1.eth.contract(
+            address=bridge_address,
+            abi=[{"inputs": [], "name": "messenger", "outputs": [{"internalType": "address", "name": "", "type": "address"}], "stateMutability": "view", "type": "function"}]
+        )
+        messenger_address = bridge_contract.functions.messenger().call()
+        
+        # Создаем контракт мессенджера
+        messenger_contract = w3_l1.eth.contract(
+            address=messenger_address,
+            abi=[{
+                "inputs": [
+                    {"internalType": "address", "name": "_sender", "type": "address"},
+                    {"internalType": "address", "name": "_target", "type": "address"},
+                    {"internalType": "uint256", "name": "_value", "type": "uint256"},
+                    {"internalType": "uint256", "name": "_messageNonce", "type": "uint256"},
+                    {"internalType": "bytes", "name": "_message", "type": "bytes"},
+                    {"components": [
+                        {"internalType": "uint256", "name": "batchIndex", "type": "uint256"},
+                        {"internalType": "bytes", "name": "merkleProof", "type": "bytes"}
+                    ], "internalType": "struct IL1ScrollMessenger.L2MessageProof", "name": "_proof", "type": "tuple"}
+                ],
+                "name": "relayMessageWithProof",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            }]
+        )
+
+        print(f"Отправляем подтверждение для {'ETH' if is_eth else 'Token'} транзакции {tx_hash}")
+        print(f"От: {from_addr}")
+        print(f"Сумма: {value}")
+        print(f"Nonce: {message_nonce}")
+
+        # Получаем текущий gas price и увеличиваем его на 20%
+        gas_price = w3_l1.eth.gas_price
+        gas_price = int(gas_price * 1.2)
+
+        # Отправляем транзакцию
+        tx = messenger_contract.functions.relayMessageWithProof(
             from_addr,
-            L1_BRIDGE_ADDRESS,
+            bridge_address,
             value,
             message_nonce,
             message,
@@ -155,64 +231,100 @@ def relay_withdrawal(tx_hash):
             "from": account.address,
             "nonce": w3_l1.eth.get_transaction_count(account.address),
             "gas": 2000000,
-            "gasPrice": w3_l1.eth.gas_price,
-            "value": 0
+            "gasPrice": gas_price
         })
-        signed = account.sign_transaction(tx)
-        tx_hash_hex = w3_l1.eth.send_raw_transaction(signed.raw_transaction)
-        print(f"Транзакция отправлена: {tx_hash_hex.hex()}")
-        save_processed(tx_hash)
-        remove_pending(tx_hash)
-        return True
+
+        signed_tx = account.sign_transaction(tx)
+        tx_hash_l1 = w3_l1.eth.send_raw_transaction(signed_tx.rawTransaction)
+        print(f"Отправлена транзакция подтверждения: {tx_hash_l1.hex()}")
+        
+        # Ждем подтверждения транзакции
+        receipt = w3_l1.eth.wait_for_transaction_receipt(tx_hash_l1)
+        if receipt.status == 1:
+            print(f"Транзакция успешно подтверждена")
+            save_processed(tx_hash)
+            return True
+        else:
+            print(f"Ошибка при подтверждении транзакции")
+            return False
+
     except Exception as e:
         print(f"Ошибка при отправке транзакции: {e}")
         return False
 
 def process_pending():
-    # Копируем pending в отдельный список, чтобы не было проблем с изменением множества во время итерации
-    for tx_hash in list(pending):
-        print(f"Проверка pending tx: {tx_hash}")
-        if relay_withdrawal(tx_hash):
-            print(f"Финализировано и удалено из pending: {tx_hash}")
+    # Проверяем ETH транзакции
+    print(f"Проверка отложенных ETH транзакций ({len(pending_eth)} шт.)")
+    for tx_hash in list(pending_eth):
+        print(f"Проверка отложенной ETH транзакции: {tx_hash}")
+        if relay_withdrawal(tx_hash, is_eth=True):
+            print(f"{tx_hash} - Успешно обработана отложенная ETH транзакция")
         else:
-            print(f"Пока не claimable: {tx_hash}")
+            print(f"{tx_hash} - ETH транзакция все еще не готова к подтверждению")
+
+    # Проверяем Token транзакции
+    print(f"Проверка отложенных Token транзакций ({len(pending_token)} шт.)")
+    for tx_hash in list(pending_token):
+        print(f"Проверка отложенной Token транзакции: {tx_hash}")
+        if relay_withdrawal(tx_hash, is_eth=False):
+            print(f"{tx_hash} - Успешно обработана отложенная Token транзакция")
+        else:
+            print(f"{tx_hash} - Token транзакция все еще не готова к подтверждению")
 
 def main_loop():
-    print(f"Relayer started. Address: {account.address}")
-    print(f"Listening WithdrawERC20 events on L2 bridge: {L2_BRIDGE_ADDRESS}")
-    # Универсальная проверка типа провайдера
-    if w3_l2.provider.__class__.__name__ == "WebsocketProvider":
-        event_filter = l2_bridge.events.WithdrawERC20.create_filter(from_block='latest')
-    else:
-        event_filter = l2_bridge.events.WithdrawERC20.create_filter(from_block=w3_l2.eth.block_number)
+    global processed, pending_eth, pending_token
+    processed, pending_eth, pending_token = load_state()
+    
+    print(f"Релеер запущен. Адрес: {account.address}")
+    print(f"Загружено:")
+    print(f"- {len(processed)} обработанных транзакций")
+    print(f"- {len(pending_eth)} ожидающих ETH транзакций")
+    print(f"- {len(pending_token)} ожидающих Token транзакций")
+    print(f"Отслеживаем события на L2:")
+    print(f"Token Bridge: {L2_TOKEN_BRIDGE_ADDRESS}")
+    print(f"ETH Bridge: {L2_ETH_BRIDGE_ADDRESS}")
+
+    # Создаем фильтры для событий
+    l2_token_bridge = w3_l2.eth.contract(address=L2_TOKEN_BRIDGE_ADDRESS, abi=[WITHDRAW_EVENT_ABI])
+    l2_eth_bridge = w3_l2.eth.contract(address=L2_ETH_BRIDGE_ADDRESS, abi=[ETH_WITHDRAWN_EVENT_ABI])
+
+    # Получаем текущий блок
+    last_block = w3_l2.eth.block_number
+
     while True:
         try:
-            # 1. Проверяем все pending
+            # Сначала проверяем отложенные транзакции
             process_pending()
-            # 2. Слушаем новые события WithdrawERC20
-            for event in event_filter.get_new_entries():
-                l2_tx_hash = event["transactionHash"].hex()
-                print(f"Обнаружен WithdrawERC20: {l2_tx_hash}")
-                if l2_tx_hash in processed or l2_tx_hash in pending:
-                    continue
-                # Сразу пробуем финализировать
-                if not relay_withdrawal(l2_tx_hash):
-                    print(f"Добавляю в pending: {l2_tx_hash}")
-                    save_pending(l2_tx_hash)
+
+            current_block = w3_l2.eth.block_number
+            if current_block > last_block:
+                print(f"Проверка новых блоков от {last_block + 1} до {current_block}")
+                
+                # Получаем события вывода токенов
+                token_events = l2_token_bridge.events.WithdrawERC20.get_logs(fromBlock=last_block + 1, toBlock=current_block)
+                for event in token_events:
+                    tx_hash = event["transactionHash"].hex()
+                    print(f"Найдено событие вывода токена: {tx_hash}")
+                    if tx_hash not in processed:
+                        if not relay_withdrawal(tx_hash, is_eth=False):
+                            save_pending_token(tx_hash)
+
+                # Получаем события вывода ETH
+                eth_events = l2_eth_bridge.events.ETHWithdrawn.get_logs(fromBlock=last_block + 1, toBlock=current_block)
+                for event in eth_events:
+                    tx_hash = event["transactionHash"].hex()
+                    print(f"Найдено событие вывода ETH: {tx_hash}")
+                    if tx_hash not in processed:
+                        if not relay_withdrawal(tx_hash, is_eth=True):
+                            save_pending_eth(tx_hash)
+
+                last_block = current_block
+
+            time.sleep(30)  # Проверяем каждые 30 секунд
+
         except Exception as e:
-            print(f"Ошибка в основном цикле: {e}")
-            # Если фильтр устарел или не найден — пересоздать его
-            if "filter not found" in str(e):
-                print("Пересоздаю фильтр событий WithdrawERC20...")
-                try:
-                    if w3_l2.provider.__class__.__name__ == "WebsocketProvider":
-                        event_filter = l2_bridge.events.WithdrawERC20.create_filter(from_block='latest')
-                    else:
-                        event_filter = l2_bridge.events.WithdrawERC20.create_filter(from_block=w3_l2.eth.block_number)
-                except Exception as e2:
-                    print(f"Ошибка при пересоздании фильтра: {e2}")
-            time.sleep(10)
-        time.sleep(30)
+            print(f"Ошибка в главном цикле: {e}")
+            time.sleep(60)  # В случае ошибки ждем дольше
 
 if __name__ == "__main__":
     main_loop()

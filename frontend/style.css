@@ -1,135 +1,351 @@
+:root {
+  --primary-color: #3ee6c1;
+  --error-color: #ff6b6b;
+  --bg-color: #1a1b23;
+  --card-bg: #2a2b33;
+  --border-color: #3a3b43;
+  --text-color: #ffffff;
+  --text-secondary: #9ba1a6;
+  --hover-color: #4a4b53;
+}
+
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  background: #101c24;
-  color: #e6f6ff;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  margin: 0;
-  min-height: 100vh;
-}
-.container {
-  max-width: 480px;
-  margin: 40px auto;
-  background: #16232e;
-  border-radius: 18px;
-  box-shadow: 0 4px 32px #0008;
-  padding: 32px 24px 16px 24px;
-}
-h1 {
-  text-align: center;
-  color: #3ee6c1;
-  margin-bottom: 32px;
-}
-.bridge-blocks {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-.bridge-section {
-  background: #18344a;
-  border-radius: 12px;
-  padding: 20px 16px 16px 16px;
-  box-shadow: 0 2px 12px #0004;
-}
-.bridge-section h2 {
-  color: #4fd1ff;
-  margin-top: 0;
-}
-label {
-  display: block;
-  margin-bottom: 12px;
-  color: #b2e9e9;
-}
+/* удаление стрелок в инпутах */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 input[type="number"] {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #22384a;
-  color: #e6f6ff;
-  font-size: 1.1em;
-  margin-top: 6px;
-  margin-bottom: 16px;
   -moz-appearance: textfield;
 }
-input[type="number"]:focus {
-  outline: 2px solid #3ee6c1;
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
 }
-button {
-  background: linear-gradient(90deg, #3ee6c1 0%, #4fd1ff 100%);
-  color: #101c24;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 24px;
-  font-size: 1.1em;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background 0.2s;
+
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
-button:hover {
-  background: linear-gradient(90deg, #4fd1ff 0%, #3ee6c1 100%);
-}
-#connect-btn {
-  width: 100%;
-  margin: 32px 0 0 0;
-}
-footer {
+
+h1 {
   text-align: center;
-  margin-top: 32px;
-  color: #4fd1ff;
+  margin-bottom: 2rem;
+  color: var(--primary-color);
 }
-footer a {
-  color: #3ee6c1;
-  text-decoration: none;
-  margin: 0 8px;
+
+/* Информация о контракте */
+.contract-info {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid var(--border-color);
 }
-footer a:hover {
-  text-decoration: underline;
+
+/* Статус сети */
+.network-status {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
 }
-.balance-row {
+
+.network {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  color: #b2e9e9;
+  gap: 0.5rem;
 }
-.summary {
-  background: #22384a;
+
+.network-label {
+  color: var(--text-secondary);
+}
+
+.network-name {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* Предупреждение */
+.warning-message {
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid var(--error-color);
   border-radius: 8px;
-  padding: 10px 8px;
-  margin-bottom: 12px;
-  color: #e6f6ff;
-  font-size: 0.98em;
+  padding: 1rem;
+  margin: 2rem 0;
+  color: var(--text-color);
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.95rem;
 }
+
+.warning-message p {
+  margin: 8px 0;
+  color: var(--text-color);
+}
+
+.warning-text {
+  color: var(--error-color);
+  font-size: 0.95em;
+  font-weight: 500;
+}
+
+/* Выбор типа моста */
+.bridge-type-selector {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.type-btn {
+  padding: 0.5rem 2rem;
+  border: 2px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.type-btn:hover {
+  background-color: var(--hover-color);
+}
+
+.type-btn.active {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+}
+
+/* Вкладки */
 .tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
-  gap: 8px;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
 }
+
 .tab-btn {
-  background: #18344a;
-  color: #4fd1ff;
-  border: none;
-  border-radius: 8px 8px 0 0;
-  padding: 12px 28px;
-  font-size: 1.08em;
-  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid transparent;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  outline: none;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  position: relative;
+  overflow: hidden;
 }
+
+.tab-btn:hover {
+  background-color: var(--hover-color);
+  border-color: var(--primary-color);
+}
+
 .tab-btn.active {
-  background: linear-gradient(90deg, #3ee6c1 0%, #4fd1ff 100%);
-  color: #101c24;
-  box-shadow: 0 2px 8px #0004;
-  z-index: 2;
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+  border-color: var(--primary-color);
+}
+
+/* Разделы моста */
+.bridge-section {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Контейнер балансов */
+.balances-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.balance-box {
+  background-color: var(--bg-color);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.balance-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.balance-amount {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Формы */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.input-with-max {
+  display: flex;
+  gap: 0.5rem;
+}
+
+input[type="number"] {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+/* Сводка */
+.summary {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+.summary-row.highlight {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1em;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Сообщения статуса */
+#status-container {
+  margin-top: 1rem;
+}
+
+#status-msg, #error-msg {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+#status-msg {
+  background-color: rgba(62, 230, 193, 0.1);
+  color: var(--primary-color);
+}
+
+#error-msg {
+  background-color: rgba(255, 107, 107, 0.1);
+  color: var(--error-color);
+}
+
+.hidden {
+  display: none;
+}
+
+/* Футер */
+footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  color: var(--text-secondary);
+}
+
+footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .container {
+    margin: 1rem auto;
+  }
+
+  .network-status {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .balances-container {
+    grid-template-columns: 1fr;
+  }
+
+  .bridge-type-selector {
+    flex-direction: column;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tab-btn {
+    width: 100%;
+  }
 } 

@@ -1,0 +1,24 @@
+{
+  "eth": {
+    "l1": {
+      "bridge": "0xBdc08074e5797df283d2212A0088f37d22eC6b41",
+      "router": "0x13FBE0D0e5552b8c9c4AE9e2435F38f37355998a",
+      "messenger": "0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A"
+    },
+    "l2": {
+      "bridge": "0x2c51eaEf3e08F8b7f74D802C65B2b45f775351E1",
+      "router": "0x9aD3c5617eCAa556d6E166787A97081907171230",
+      "messenger": "0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d"
+    }
+  },
+  "token": {
+    "l1": {
+      "token": "0x728855754f79f4Ec7e5A97878b195Ac06D970aB0",
+      "bridge": "0x890309B7c5BE9E008385d422E9893f3279383a17"
+    },
+    "l2": {
+      "token": "0x890309B7c5BE9E008385d422E9893f3279383a17",
+      "bridge": "0x728855754f79f4Ec7e5A97878b195Ac06D970aB0"
+    }
+  }
+}

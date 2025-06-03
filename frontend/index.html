@@ -10,45 +10,106 @@
 <body>
   <div class="container">
     <h1>Scroll Bridge</h1>
+    
+    <!-- Статус сети -->
+    <div class="network-status"></div>
+
+    <!-- Выбор типа моста -->
+    <div class="bridge-type-selector">
+      <button class="type-btn active" id="type-eth">ETH</button>
+      <button class="type-btn" id="type-token">SUT</button>
+    </div>
+
+    <!-- Вкладки -->
     <div class="tabs">
       <button class="tab-btn active" id="tab-deposit">Deposit to Scroll</button>
       <button class="tab-btn" id="tab-withdraw">Withdraw to Ethereum</button>
     </div>
+
     <div class="bridge-blocks">
-      <section class="bridge-section deposit" id="deposit-section">
-        <div class="balance-row">Available: <span id="l1-balance">-</span> <button id="max-deposit-btn">Max</button></div>
-        <form id="deposit-form">
+      <!-- Раздел ETH моста -->
+      <section class="bridge-section eth-bridge" id="eth-bridge-section">
+        <div class="balances-container">
+          <div class="balance-box l1">
+            <div class="balance-label">L1 Balance</div>
+            <div class="balance-amount"><span id="l1-eth-balance">-</span> ETH</div>
+          </div>
+          <div class="balance-box l2">
+            <div class="balance-label">L2 Balance</div>
+            <div class="balance-amount"><span id="l2-eth-balance">-</span> ETH</div>
+          </div>
+        </div>
+
+        <form id="eth-form">
           <label>Amount
-            <input type="number" min="0" step="any" id="deposit-amount" placeholder="0.0" required />
+            <div class="input-with-max">
+              <input type="number" min="0" step="any" id="eth-amount" placeholder="0.0" required />
+              <button type="button" id="eth-max-btn">Max</button>
+            </div>
           </label>
           <div class="summary">
-            <div>Amount: <span id="deposit-summary-amount">-</span></div>
-            <div>Ethereum Fee: <span id="deposit-eth-fee">-</span></div>
-            <div>Scroll Fee: <span id="deposit-scroll-fee">-</span></div>
-            <div>Total: <span id="deposit-summary-total">-</span></div>
+            <div>Amount: <span id="eth-summary-amount">-</span> ETH</div>
+            <div class="summary-row">
+              <span>Network Fee (ETH):</span>
+              <span id="eth-network-fee">-</span>
+            </div>
+            <div class="summary-row">
+              <span>Bridge Fee (ETH):</span>
+              <span id="eth-bridge-fee">-</span>
+            </div>
+            <div class="summary-row">
+              <span>Total to Pay (ETH):</span>
+              <span id="eth-total">-</span>
+            </div>
+            <div class="summary-row highlight">
+              <span>You will receive (ETH):</span>
+              <span id="eth-total-received">-</span>
+            </div>
           </div>
-          <button type="submit">Deposit</button>
+          <button type="submit" id="eth-submit-btn">Bridge ETH</button>
         </form>
       </section>
-      <section class="bridge-section withdraw" id="withdraw-section" style="display:none;">
-        <div class="balance-row">Available: <span id="l2-balance">-</span> <button id="max-btn">Max</button></div>
-        <form id="withdraw-form">
+
+      <!-- Раздел токена моста -->
+      <section class="bridge-section token-bridge" id="token-bridge-section" style="display:none;">
+        <div class="balances-container">
+          <div class="balance-box l1">
+            <div class="balance-label">L1 Token Balance</div>
+            <div class="balance-amount"><span id="l1-token-balance">-</span> <span class="token-symbol">SUT</span></div>
+          </div>
+          <div class="balance-box l2">
+            <div class="balance-label">L2 Token Balance</div>
+            <div class="balance-amount"><span id="l2-token-balance">-</span> <span class="token-symbol">SUT</span></div>
+          </div>
+        </div>
+
+        <form id="token-form">
           <label>Amount
-            <input type="number" min="0" step="any" id="withdraw-amount" placeholder="0.0" required />
+            <div class="input-with-max">
+              <input type="number" min="0" step="any" id="token-amount" placeholder="0.0" required />
+              <button type="button" id="token-max-btn">Max</button>
+            </div>
           </label>
           <div class="summary">
-            <div>Amount: <span id="summary-amount">-</span></div>
-            <div>Ethereum Fee: <span id="eth-fee">-</span></div>
-            <div>Scroll Fee: <span id="scroll-fee">-</span></div>
-            <div>Total: <span id="summary-total">-</span></div>
+            <div>Amount: <span id="token-summary-amount">-</span> <span class="token-symbol">SUT</span></div>
+            <div>Network Fee: <span id="token-network-fee">-</span> ETH</div>
+            <div>Bridge Fee: <span id="token-bridge-fee">-</span> ETH</div>
+            <div class="total">Total (SUT): <span id="token-total-sut">-</span> <span class="token-symbol">SUT</span></div>
+            <div class="total">Total (ETH): <span id="token-total-eth">-</span> ETH</div>
           </div>
-          <button type="submit">Withdraw</button>
+          <button type="submit" id="token-submit-btn">Bridge <span class="token-symbol">SUT</span></button>
         </form>
       </section>
     </div>
+
     <button id="connect-btn">Connect Wallet</button>
+
+    <!-- Сообщения статуса -->
+    <div id="status-container"></div>
+
     <footer>
-      <a href="#">Testnet Bridge</a> | <a href="#">Terms of Service</a>
+      <a href="https://sepolia.scrollscan.dev/" target="_blank">Bridge Explorer</a> | 
+      <a href="https://scroll.io/bridge" target="_blank">Documentation</a>
     </footer>
   </div>
 </body>
