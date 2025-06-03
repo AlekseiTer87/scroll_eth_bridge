@@ -154,7 +154,7 @@ npm run claiml2tol1
 ### Перевод эфира с L1 на L2
 
 ```bash
-bridgeethl1tol2
+npm run bridgeethl1tol2
 ```
 Этот скрипт:
 1. Запрашивает ваш приватный ключ
@@ -166,7 +166,7 @@ bridgeethl1tol2
 ### Перевод эфира с L2 на L1
 
 ```bash
-bridgeethl2tol1
+npm run bridgeethl2tol1
 ```
 Этот скрипт:
 1. Запрашивает ваш приватный ключ
@@ -177,7 +177,7 @@ bridgeethl2tol1
 
 ### Клейм эфира с L2 на L1
 ```bash
-claimethL2tol1
+npm run claimethL2tol1
 ```
 1. Запрашивает хэш транзакции перевода с L2 на L1
 2. Получает доказательство через API Scroll
