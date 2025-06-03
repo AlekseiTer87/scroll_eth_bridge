@@ -12,7 +12,7 @@
 
 ## Мост для ETH:
 - Мост в ethereum (L1LockBridge): [0xBdc08074e5797df283d2212A0088f37d22eC6b41](https://sepolia.etherscan.io/address/0xBdc08074e5797df283d2212A0088f37d22eC6b41)
-- Мост в Scroll (L2LockBridge): [0x2c51eaEf3e08F8b7f74D802C65B2b45f775351E1](https://sepolia.scrollscan.com/address/
+- Мост в Scroll (L2LockBridge): [0x2c51eaEf3e08F8b7f74D802C65B2b45f775351E1](https://sepolia.scrollscan.com/address/0x2c51eaEf3e08F8b7f74D802C65B2b45f775351E1)
 
 ## Дополнительные сервисы
 - Аккаунт релеера: [0xd134B798469439A60B5868076d3DC6A94D9d8b76](https://sepolia.etherscan.io/address/0xd134B798469439A60B5868076d3DC6A94D9d8b76)
